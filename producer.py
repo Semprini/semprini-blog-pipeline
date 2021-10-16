@@ -49,6 +49,31 @@ class FakePerson:
         self.last_name = fake.last_name_nonbinary()
         self.middle_name = fake.first_name_nonbinary()
 
+def fake_customer(index, person):
+    return {
+            "cust_num": f"{index}",
+            "status": "a",
+            "name": f"{person.prefix} {person.first_name} {person.last_name}",
+            "fname": person.first_name,
+            "lname": person.last_name,
+            "mnames": person.middle_name,
+            "form": person.prefix,
+            "sex": person.gender,
+            "maritalstatus": person.maritalstatus
+        }
+
+def fake_account(index, person):
+    return {
+            "created": f"{fake.date_between(start_date='-20y', end_date='today')}",
+            "valid_from": None,
+            "valid_to": None,
+            "cust_num": f"{index}",
+            "acct_num": f"00-{fake.aba()}-00",
+            "status": "A",
+            "type": "Test",
+            "name": f"{person.first_name}'s Account",
+            "pin": "1234"
+        }
 
 def send(index_start, count):
     producer = KafkaProducer(
@@ -60,32 +85,9 @@ def send(index_start, count):
         print("Iteration", index)
 
         person = FakePerson()
-
-        customer = {
-            "cust_num": f"{index}",
-            "status": "a",
-            "name": f"{person.prefix} {person.first_name} {person.last_name}",
-            "fname": person.first_name,
-            "lname": person.last_name,
-            "mnames": person.middle_name,
-            "form": person.prefix,
-            "sex": person.gender,
-            "maritalstatus": person.maritalstatus
-        }
-        producer.send('raw_table_cust', value=customer)
-
-        account = {
-            "created": f"{fake.date_between(start_date='-20y', end_date='today')}",
-            "valid_from": None,
-            "valid_to": None,
-            "cust_num": f"{index}",
-            "acct_num": f"00-{fake.aba()}-00",
-            "status": "A",
-            "type": "Test",
-            "name": f"{person.first_name}'s Account",
-            "pin": "1234"
-        }
-        producer.send('raw_table_acct', value=account)
+    
+        producer.send('raw_table_cust', value=fake_customer(index, person))
+        producer.send('raw_table_acct', value=fake_account(index, person))
         sleep(0.5)
 
 if __name__ == "__main__":
