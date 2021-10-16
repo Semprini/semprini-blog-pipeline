@@ -1,2 +1,2 @@
 # semprini-blog-pipeline
-Code for a blogpost
+https://semprini.me/there-and-back-again-analytics-data-pipeline/
